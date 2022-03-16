@@ -1,0 +1,69 @@
+.navBar{
+    display: flex;
+    flex-direction: row;
+}
+.header-logo>img{
+height: 35px;
+}
+.header-logo{
+    padding: 4px;
+}
+.navBar{
+    display: flex;
+    background-color: #fffff7;
+}
+.loginAccountImg{
+    height: 30px;
+   
+  }
+ .loginAccount{
+  padding-left: 70px;
+ }
+ 
+  #navbarSupportedContent ul {
+    margin: 0px;
+  }
+  #navbarSupportedContent ul li a i {
+    margin-right: 10px;
+  }
+  #navbarSupportedContent li {
+    list-style-type: none;
+    float: left;
+  }
+  #navbarSupportedContent ul li a {
+    color: #111cc080;
+    text-decoration: none;
+    font-size: 15px;
+    display: block;
+    padding: 17px 20px;
+    transition-duration: 0.6s;
+    transition-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    position: relative;
+    font-family: 'Poppins', sans-serif;
+  }
+ 
+  #navbarSupportedContent a:not(:only-child):after {
+    content: '\f105';
+    position: absolute;
+    right: 20px;
+    top: 10px;
+    font-size: 14px;
+    font-family:  'Poppins', sans-serif;
+    display: inline-block;
+    padding-right: 3px;
+    vertical-align: middle;
+    font-weight: 900;
+    transition: 0.5s;
+  }
+  #navbarSupportedContent .active > a:not(:only-child):after {
+    transform: rotate(90deg);
+  }
+  
+  
+
+  @media (max-width: 991px) {
+    #navbarSupportedContent ul li a {
+      padding: 12px 30px;
+    }
+    
+  }

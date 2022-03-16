@@ -1,0 +1,166 @@
+.subnav-modeling-content{
+	flex: 1;
+	text-align: center;
+}
+.subnav-modeling-content ul li{
+	list-style: none;
+	display: inline-block;
+	padding: 2px 6px;
+	position: relative;
+}
+
+.subnav-modeling-content ul li a{
+	color: #fff;
+	text-decoration: none;
+	font-size: 13px;
+}
+#header-nav {
+    position: static;
+	background-color: #79bfbc;
+	display: flex;
+	padding: 1% 1%;
+	align-items: center;
+	justify-content: space-between;
+	height: 10px;
+}
+#newModels{
+  width: 200px;
+  overflow-y: auto;
+    height: 50px;
+}
+.sub-nav{
+    position: static;
+    margin-top: 20px;
+    left: 0%;
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+    width: 100%;
+    background-color: #79bfbc;
+    height: 40px;
+    color: white;
+    justify-content: space-around;
+  }
+  .subnav-modeling-content{
+      padding: 8px;
+      
+  }
+  .subnav-modeling-content>a{
+    color: white;
+    justify-content: space-around;
+    display: inline-block;
+    text-decoration: none;
+    padding: 0px;
+    margin: 3px;
+  }
+  .target-selector{
+    position: absolute;
+    top: 145px;
+    left: 35px;
+
+  }
+  .target-selector-2{
+    position: absolute;
+    top: 170px;
+    left: 35px;
+  }
+  /* .target-selector-2 > div{
+    display: flex;
+    position: static;
+    top: -7px;
+    left: 205px;
+    z-index: 9999
+
+  } */
+
+  .taget-selector-3{
+    position: absolute;
+    top: 230px;
+    left: 35px;
+  }
+  .taget-selector-4{
+    position: absolute;
+    top: 265px;
+    left: 35px;
+  }
+  .dataSummary{
+    position: sticky;
+    top: 420px;
+    
+    
+  }
+  .dataText{
+    position: static;
+    top: 420px;
+    left: 0%;
+    margin-top: -50px;
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+    width: 100%;
+    background-color: #79bfbc;
+    color: white;
+    height: 40px;
+  }
+  .dataSummaryText  {
+padding: 8px;  
+  }
+  label{
+      display: inline-block;
+      width: 210px;
+  }
+  .dataDisplay1{
+    background-color: #aed0ed;
+    width: 440px; 
+    padding: 55px;
+    margin: 20px;
+    height: 160px;
+    left: 0px;
+    top: 145px;
+    position: static;
+    border-radius: 25px ;
+  }
+  .modelingSystem{
+    background-color:#aed0ed;
+    width: 440px; 
+    padding: 40px;
+    margin: 20px;
+    height: 160px;
+    right: 0px;
+    top: 145px;
+    position: static;
+    border-radius: 25px ;
+    margin-left: 410px;
+  }
+  .modelstartimage{
+    position: absolute;
+    top:135px;
+
+  }
+  .setting{
+    text-align: center;
+  }
+  .settingImage{
+    position: absolute;
+    top:144px;
+    right: 55px;
+
+  } .parameters{
+    position: absolute;
+    top:225px;
+    right: 46px;
+
+  }
+  
+  .dataSummaryData{
+    color: #000;
+    overflow-y:auto;
+    overflow-x: auto;
+
+  }
+  .visualData{
+    display: flex;
+    height: 260px;
+}
+#categoricalData{
+  margin: 10px;
+}
+  

@@ -1,0 +1,164 @@
+.subnav-modeling-content{
+	flex: 1;
+	text-align: center;
+}
+.subnav-modeling-content ul li{
+	list-style: none;
+	display: inline-block;
+	padding: 2px 6px;
+	position: relative;
+}
+
+.subnav-modeling-content ul li a{
+	color: #fff;
+	text-decoration: none;
+	font-size: 13px;
+}
+#header-nav {
+    position: absolute;
+	background-color: #79bfbc;
+	display: flex;
+	padding: 1% 1%;
+	align-items: center;
+	justify-content: space-between;
+	height: 10px;
+}
+.sub-nav{
+    position: static;
+    top: 140px;
+    left: 0%;
+    margin-top: -50px;
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+    width: 100%;
+    background-color:#79bfbc;
+    height: 40px;
+    color: white;
+    justify-content: space-around;
+  }
+  .subnav-modeling-content{
+      padding: 8px;
+      
+  }
+  .target-selector-Evaluation{
+    position: static;
+    top: 136px;
+    right: 25px;
+    float:right;
+
+  }
+  .Models{
+    position: static;
+    top: 165px;
+left: 0px;
+    width: 100%;
+    overflow: hidden;
+    overflow-y: auto;
+  }
+  .xgBoost{
+    width: 100%;
+    background-color: #8cc2f0;
+    padding-left: 25px;
+  }
+  .gbm{
+    width: 100%;
+    background-color:#8cc2f0;
+    margin-top: 1%;
+    padding-left: 25px;
+  }
+  .lightGbm{
+    width: 100%;
+    background-color: #8cc2f0;
+    margin-top: 1%;
+    padding-left: 25px;
+  }
+  .target-selector-2-modelevaluation{
+    position: static;
+    top: 280px;
+    margin-left: 30px;
+  }
+  .target-selector-2-1{
+    position: static;
+    top: 280px;
+   margin-left: 30px;
+  }
+  .target-selector-3-1{
+    position: static;
+    top: 320px;
+    margin-left: 30px;
+  }
+  .taget-selector-3-modelevaluation{
+    position: static;
+    top: 320px;
+    margin-left: 25px;
+  }
+  .dataOutput{
+    position: static;
+    margin-top:20px;
+    left: 0%;
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+    width: 100%;
+    background-color: #4E6766;
+    height: 40px;
+    color: white;
+  }
+  .dataSummaryText  {
+padding: 8px;  
+  }
+  label{
+      display: inline-block;
+      width: 242px;
+  }
+  .targetVariation{
+    display: flex;
+  }
+  .activelist{
+    background-color: rgb(200, 200, 206);
+    margin: 10px;
+  }
+  .modelList{
+    margin-top: 30px;
+  }
+  .selectVariableLabel{
+    width: 130px;
+
+  }
+  .MuiIconButton-root{
+height: 20px;
+  }
+  .makeStyles-button-5{
+    margin: 8px 28px;
+  }
+  .dataOutput1{
+    border-right: 2px solid black;
+    width: 450px;
+    height: auto;
+  }
+  .dataOutput2{
+    border-right: 2px solid black;
+    width: 450px;
+    height: auto;
+    margin-top: 0px;
+  }
+  .dataOutput3{
+   padding: 8px;
+  }
+  .dataOutput3>img{
+    width: 350px;
+  }
+  .dataValue{
+    display: flex;
+    color: black;
+  }
+  ul{
+    list-style-type: none;
+  }
+  .rocImage{
+    height: 400px;
+    width: 400px;
+  }
+  .conImage{
+    height: 400px;
+    width: 400px;
+  }

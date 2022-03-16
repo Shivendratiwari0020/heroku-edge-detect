@@ -1,0 +1,15 @@
+.segmentRule{
+    display: flex;
+    justify-content: space-evenly;
+}
+.resultLabel{
+    width: 100%;
+}
+.downloadButton{
+    margin-left: 45px !important;
+}
+.baseModel{
+    margin-top: 40px;
+    margin-left: 149px;
+
+}

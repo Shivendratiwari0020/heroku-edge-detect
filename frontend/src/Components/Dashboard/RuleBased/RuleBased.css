@@ -1,0 +1,94 @@
+.forfeitbutton{
+    position: static;
+    margin-top: 60px;
+    margin-left: 588px;
+}
+.forfeitClassifier{
+    background-color: #70ff7b;
+    padding: 10px;
+border-radius: 10px;
+
+}
+.target-selector-rulebased{
+    position: static;
+    margin-top: 65px;
+    margin-left: 150px;
+}
+
+.target-selector-rulebased1{
+    position: static;
+    margin-top: 65px;
+    
+}
+
+.target-selector-rulebased2{
+    position: static;
+    margin-top: 65px;
+  
+}
+.target-selector-rulebased3{
+    position: static;
+    margin-top: 65px;
+    
+}
+.target-selector-rulebased4{
+    position: static;
+    margin-top: 65px;
+}
+.target-selector-rulebased>label{
+    display: inline-block;
+    width: 125px;
+}
+.target-selector-rulebased1>label{
+    display: inline-block;
+    width: 125px;
+}
+.target-selector-rulebased2>label{
+    display: inline-block;
+    width: 125px;
+}
+.target-selector-rulebased3>label{
+    display: inline-block;
+    width: 125px;
+}
+.target-selector-rulebased4>label{
+    display: inline-block;
+    width: 125px;
+}
+.iconplus{
+    position: static;
+    margin-top: 65px;
+    margin-left: 117px;
+}
+.iconplusImage{
+    height: 30px;
+}
+#ruleBased{
+    display: flex;
+    justify-content: space-evenly;
+}
+#rules1{
+    display: flex;
+}
+#newRule{
+    display: flex;
+}
+.addrule{
+margin: 10px 350px;
+}
+button{
+    padding: 10px;
+}
+.ruleButton{
+display: flex;
+margin-left: 450px;
+}
+
+.ruleTitle{
+    text-align: center;
+    margin-top: 20px;
+}
+.sendButton{
+    margin-left: 620px !important;
+    margin-top: 20px !important;
+}
