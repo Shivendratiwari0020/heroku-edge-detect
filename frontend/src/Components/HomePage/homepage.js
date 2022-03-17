@@ -16,13 +16,13 @@ history.push('/login')
     </div>
     <div className="edgeDetail">
         <div className="welcomeHeader"><h1>Welcome to Working EdgeDetect</h1></div>
-        
+        <h1>hello </h1>
    
         <div>Detecting Rare Events,
 Anomalous Behaviors,
 and Unusual Patterns</div>
 <div className="homeLoginButton">
-<button className="loginButton" size="large" variant ="outlined" onClick={handleClick} >Click here for Login/Signup</button>
+<button className="loginButton" size="large" variant ="outlined" onClick={handleClick} >Click me here for Login/Signup</button>
 </div>
         </div>
         
