@@ -1,0 +1,26 @@
+.thead,
+tr {
+  background-color: rgb(62, 192, 62);
+}
+
+.tr,
+th {
+  white-space: nowrap;
+  padding: 1rem;
+  text-align: left;
+  background-color: honeydew;
+}
+
+tbody,
+tr:nth-child(odd) {
+  background-color: white;
+}
+
+.tbody,
+tr,
+td {
+  white-space: nowrap;
+  width: 20%;
+  overflow-wrap: break-word;
+  padding: 0.5rem;
+}

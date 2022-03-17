@@ -1,0 +1,21 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  background-color: #fffff7;
+  height: 50px;
+}
+.UserAccount {
+  height: 40px;
+  margin-top: 4px;
+  margin-right: 8px;
+}
+.EdgeDetect {
+  height: 42px;
+  margin-left: 8px;
+}
+
+@media (max-width: 767px) {
+  .header {
+    height: 50px;
+  }
+}
