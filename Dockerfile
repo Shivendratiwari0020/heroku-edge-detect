@@ -28,5 +28,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 #RUN apk del .build-deps
 
 EXPOSE 8000
-
+RUN python3 project/manage.py migrate
 CMD ["python3", "project/manage.py", "runserver", "0.0.0.0:8000"]
