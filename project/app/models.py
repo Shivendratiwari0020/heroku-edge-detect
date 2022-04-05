@@ -31,6 +31,9 @@ class Sai(models.Model):
     modells=models.TextField(blank=True, null=True)
     models_path=models.TextField(blank=True,null=True)
     target_variable=models.CharField(max_length=501)
+    # result=models.TextField(blank=True, null=True)
+    xtest=models.TextField(blank=True, null=True)
+    ytest=models.TextField(blank=True, null=True)
     # mod_data = modells.
     # df_cat = models.TextField(blank=True, null=True)
     # df_int = models.TextField(blank=True, null=True)
@@ -46,6 +49,7 @@ class Image(models.Model):
     image_id=models.BigIntegerField(primary_key=True)
     file_path_roc = models.TextField(blank=True, null=True)
     file_path_con = models.TextField(blank=True, null=True)
+    data=models.TextField(blank=True, null=True)
     class Meta:
         db_table = "Image"
 

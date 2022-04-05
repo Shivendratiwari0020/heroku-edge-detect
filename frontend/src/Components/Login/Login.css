@@ -2,7 +2,9 @@
   width: 100%;
   opacity: 0.6;
 }
-
+.loginIcon > img{
+  width :300px;
+}
 .loginForm{
   padding: 8px;
     width: 300px;

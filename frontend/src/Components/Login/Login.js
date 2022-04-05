@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import apexonicon from "../../assets/images/apexonicon.png";
 import bgImage from "../../assets/images/bg16.jpg";
 import './Login.css'
+import { useHistory } from "react-router";
+
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -16,14 +18,16 @@ const Login = () => {
       setLoading(false);
     }
   }, []);
+  const history = useHistory();
 
   const onSubmit = e => {
     e.preventDefault();
+    history.push("/homepage")
 
-    const user = {
-      email: email,
-      password: password
-    };
+    // const user = {
+    //   email: email,
+    //   password: password
+    // };
 
   //   fetch('http://127.0.0.1:8000/api/v1/users/auth/login/', {
   //     method: 'POST',

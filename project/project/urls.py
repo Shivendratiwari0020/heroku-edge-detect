@@ -20,7 +20,6 @@ from app import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.home_view),
     path('api/test_views', views.test_views),
     path('api/upload', views.upload_file),
     path('api/modeling', views.upload_file_get),
@@ -34,5 +33,6 @@ urlpatterns = [
     path('api/sendfreezedata',views.sendfreezedata),
     path('api/ruledata',views.rulesdata),
     path('api/download',views.download),
+    path('api/finalimage',views.finalimagepath),
 
 ]

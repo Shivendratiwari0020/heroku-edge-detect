@@ -14,6 +14,7 @@ import Datatable from '../../datatable';
 
 
 
+
 const useStyles = makeStyles((theme) => ({
     root: {
         '& .MuiTextField-root': {
@@ -32,6 +33,7 @@ const SegmentClassifier = () => {
 
     const [myData, setData] = useState([]);
     const [dataModels, setDataModels] = useState([])
+    const [segData,setSegData] = useState([])
 
     const [segmentFields, setSegmentFields] = useState([{
         id: uuidv4(), segmentRule: '', segmentModel: ''
@@ -42,6 +44,8 @@ const SegmentClassifier = () => {
     }])
 
     const [ruleData, setRuleData] = useState([])
+const[rocImage, setRocImage] = useState([])
+  const[conImage, setConImage] = useState([]) 
 
     useEffect(() => axios.get("http://127.0.0.1:8000/api/sendfreezedata")
     .then((response) => {
@@ -54,6 +58,18 @@ const SegmentClassifier = () => {
     .catch((error) => {
       console.log(error)
     }),
+    axios.get("http://127.0.0.1:8000/api/finalimage")
+    .then((response) => {
+        console.log(response);
+        setConImage(response.data.image.con_image)
+        setSegData(response.data.scores)
+        
+  
+  
+      })
+      .catch((error) => {
+        console.log(error)
+      }),
     []);
 
     useEffect(async () => await axios.get("http://127.0.0.1:8000/api/ruledata")
@@ -70,7 +86,7 @@ const SegmentClassifier = () => {
             // setData(result);
             // console.log(result)
             // setDataModels(response.data.rules.models);
-            setData(response.data.rules.Rules)
+            setData(response.data.rules)
 
         })
         .catch((error) => {
@@ -137,7 +153,7 @@ const SegmentClassifier = () => {
 
     //Download File Api
     const donwloadResult = () => {
-        fetch('http://localhost:3000/assets/files/NiharSawant[1_0]', {
+        fetch('http://localhost:8000/api/download', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/pdf',
@@ -176,6 +192,10 @@ const SegmentClassifier = () => {
                 <Grid id="segment">
                     
                     <Datatable className="segmentRules" data={ruleData} />
+                    
+                    <img class="conImage" src={conImage} />
+                    
+                    <Datatable className="segData" data={segData} />
 
                 </Grid>
 
@@ -225,15 +245,17 @@ const SegmentClassifier = () => {
                         <label className='resultLabel'>
                             <h3>Get Your Evaluated Result</h3>
                         </label>
-
+                        <a href="http://localhost:8000/api/download" target="_blank" download>
                         <Button className={classes.button}
                             variant="contained"
                             color="primary"
-                            type="submit" className='downloadButton' onClick={donwloadResult}>Download</Button>
+                            type="submit"  >Download</Button></a>
+                            {/* <a href="http://localhost:8000/api/download" target="_blank" download>Download</a> */}
 
                     </Grid>
                 </Grid>
             </Grid>
+
 
         </div>
     );

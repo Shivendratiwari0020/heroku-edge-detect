@@ -1,7 +1,7 @@
-.navBar{
+/* .navBar{
     display: flex;
     flex-direction: row;
-}
+} */
 .header-logo>img{
 height: 35px;
 }
@@ -9,8 +9,12 @@ height: 35px;
     padding: 4px;
 }
 .navBar{
-    display: flex;
-    background-color: #fffff7;
+  display: flex;
+  background-color: #fffff7;
+  justify-content: space-around;
+  align-items: center;
+  height:50px;
+  width: 100%;
 }
 .loginAccountImg{
     height: 30px;

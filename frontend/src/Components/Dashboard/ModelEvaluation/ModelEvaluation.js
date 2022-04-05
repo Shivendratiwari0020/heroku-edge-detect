@@ -14,6 +14,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { makeStyles } from '@material-ui/core/styles';
 import { style } from "@mui/system";
+import Datatable from "../../datatable";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -43,12 +44,7 @@ const ModelEvaluation = (props) => {
 
 
   const [modelingVariable, setModelingVariable] = useState([])
-  const matrixData = [{
-    Percesion: 0.875,
-    Recall: 0.75,
-    F1Score: 0.7618765,
-    Accuracy: 0.8
-  },]
+  const [matrixData, setMatrixData] = useState([])
   const renderMatrix = (matrix, index) => {
     return (
       <tr key={index}>
@@ -79,6 +75,8 @@ const ModelEvaluation = (props) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    var rankedValue = document.getElementById("target-dropdown").value;
+    console.log(rankedValue)
     var rankmetric1 = document.getElementById("rank1")
     var rankmetric2 = document.getElementById("rank2")
 
@@ -91,13 +89,14 @@ const ModelEvaluation = (props) => {
       console.log(rankvalue)
     }
     let modelevaluated = rankvalue;
+    let modelRank = rankedValue;
 
     axios
       .post("http://127.0.0.1:8000/api/modelingevaluation", {
-        "InputFileds": inputFields,modelevaluated
+        "InputFileds": inputFields,modelevaluated,modelRank
       })
       .then((res) => {
-        console.log("InputFields", inputFields,modelevaluated);
+        console.log("InputFields", inputFields,modelevaluated,modelRank);
         console.log(res);
      
       });
@@ -110,6 +109,7 @@ const ModelEvaluation = (props) => {
         console.log(response.data.Image);
         setRocImage(response.data.Image.file_path_roc);
              setConImage(response.data.Image.file_path_con);
+             setMatrixData(response.data.data);
      
      
      
@@ -249,6 +249,7 @@ const ModelEvaluation = (props) => {
 
   const handleFreeze = (e) => {
     e.preventDefault();
+  
     var rankmetric1 = document.getElementById("rank1")
     var rankmetric2 = document.getElementById("rank2")
 
@@ -417,7 +418,7 @@ window.location.reload();
 
       <Grid className="dataOutput">
         <Grid className="datSummary">
-          <Typography className="dataSummaryText">Data Summary</Typography>
+          <Typography className="dataSummaryText">Model Performance</Typography>
         </Grid>
         <Grid className="dataValue">
           <div className="dataOutput1">
@@ -426,20 +427,25 @@ window.location.reload();
 
           </div>
           <div className="dataOutput2">
-            <table>
-              <thead>
-                <tr>
-                  <th>Percesion</th>
-                  <th>Recall</th>
-                  <th>F1 Score</th>
-                  <th>Accuracy</th>
-                </tr>
-              </thead>
-              <tbody>
-                {matrixData.map(renderMatrix)}
-              </tbody>
-            </table>
+           
+               <table>
+                 <tr>
+                   <td>Percesion</td>
+                   {matrixData.map(pre =><td>{pre.precision}</td>)}
+                   </tr>
+                   <tr> <td>Recall</td>
+                   {matrixData.map(rec =><td>{rec.recall}</td>)}
+                  </tr>
 
+               <tr> <td>F1Score</td>
+               {matrixData.map(f1s =><td>{f1s.f1_score}</td>)}
+               </tr>
+                  <tr>
+                   <td>Accuracy</td>
+                   {matrixData.map(acc =><td>{acc.accuracy}</td>)}
+                 </tr>
+                 </table>
+          
           </div>
           <div className="dataOutput3">
             <h4>Confusion Matrix:-</h4>

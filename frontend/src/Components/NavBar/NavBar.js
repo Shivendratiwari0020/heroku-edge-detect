@@ -54,14 +54,14 @@ const NavBar = () => {
             <li className="nav-item">
               <NavLink activeStyle={{backgroundColor:"#add8e6"}} className="nav-link" to="/segmentclassifier" exact>
                 <i className="segmentclassifier">
-                </i>SEGMENT CLASSIFIER
+                </i>FINAL DETECTION
               </NavLink>
               </li>
               <li className="nav-item">
-              <NavLink activeStyle={{backgroundColor:"#add8e6"}} className="nav-link" to="/modelmonitoring" exact>
+              {/* <NavLink activeStyle={{backgroundColor:"#add8e6"}} className="nav-link" to="/modelmonitoring" exact>
                 <i className="modelmonitoring">
                 </i>MODEL MONITORING
-              </NavLink>
+              </NavLink> */}
             </li>
             
         </ul>

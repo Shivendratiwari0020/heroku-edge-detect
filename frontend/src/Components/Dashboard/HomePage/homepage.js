@@ -1,8 +1,9 @@
 import React, { Component } from "react";
 import './homepage.css';
 import bgImage from "../../assets/images/bg16.jpg";
+import { useHistory } from "react-router";
 import axios, { post } from 'axios';
-import {withRouter} from "react-router-dom"
+
 
 // login button click handler
 class Home extends Component  {
@@ -16,9 +17,6 @@ class Home extends Component  {
     this.handleChange = this.handleChange.bind(this);
   }
   handleClick() {
-    if(this.state.selectedFile.length <=1 ){
-      alert("upload file")
-    }else{
     const data = new FormData()
     data.append('file', this.state.selectedFile)
     console.warn(this.state.selectedFile);
@@ -28,10 +26,8 @@ class Home extends Component  {
     })
       .then(res => { // then print response status
         console.warn(res);
-        this.props.history.push('/data')
       })
-     .catch(err => {alert("There is problem uploading file. PLease check the file")})
-    }
+
   }
   handleChange(event) {
     this.setState({
@@ -78,4 +74,4 @@ class Home extends Component  {
 
 };
 
-export default withRouter(Home);
+export default Home;

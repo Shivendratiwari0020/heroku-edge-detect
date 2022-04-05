@@ -7,6 +7,7 @@ import Parameters from "../../../assets/images/parameters.png";
 import axios from "axios";
 import DataTable from "../../datatable"
 import { Grid } from "@mui/material";
+import {useHistory} from "react-router-dom";
 
 
   
@@ -70,6 +71,7 @@ function Modeling() {
     console.log(modelData);
     setModels(modelData);
   }
+  const history = useHistory();
   function clicked(e) {
     e.preventDefault();
     axios
@@ -81,6 +83,8 @@ function Modeling() {
       },)
       .then((res) => {
         console.log(res.data);
+        history.push("/modelevaluation")
+
       });
 	}
 
@@ -194,7 +198,7 @@ function Modeling() {
         </Grid>
       </Grid>
 	  </Grid>
-      <Grid className="dataSummary">
+      {/* <Grid className="dataSummary">
 		  <Grid className="dataText">
         <Typography className="dataSummaryText">Numerical Data Summary</Typography>
         </Grid>
@@ -208,7 +212,7 @@ function Modeling() {
         </Grid>
         <DataTable  data={dataSummary2} />
       </Grid>
-      </Grid>
+      </Grid> */}
     
 	  </Grid>
     </>

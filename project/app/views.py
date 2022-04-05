@@ -2,6 +2,7 @@ import ast
 import copy
 import io
 import operator
+from pyexpat import model
 
 import joblib
 from django.conf.urls import static
@@ -17,6 +18,7 @@ import numpy as np
 import re
 import os
 from pathlib import Path
+import pickle
 
 from django.core.files.storage import FileSystemStorage
 from django.http import HttpResponse, JsonResponse
@@ -124,6 +126,13 @@ def upload_file(request):
                 # json_str = json.dumps(lists)
                 # print(type(json_str))
                 # print(json_str)
+            jobs_res = models.Upload.objects.all().delete()
+            jobs_re = models.Sai.objects.all().delete()
+            # jobs_r = models.Image.objects.all().delete()
+            jobs = models.Segment.objects.all().delete()
+            job = models.Rules.objects.all().delete()
+
+
             current_date = datetime.datetime.now()
             Id_val = int(current_date.strftime("%Y%m%d%H%M%S"))
             upload_create = models.Upload(
@@ -171,7 +180,20 @@ def upload_file_get(request):
         df_int_ = reading_csv.select_dtypes(include=['float64', 'int64'])
         # excluded_columns = [i for i in self.df.columns if i not in description_df.columns]
         # eda_df = pd.concat([description_df.reset_index(),pd.DataFrame(np.zeros((description_df.shape[0],len(excluded_columns))),columns = excluded_columns)],axis=1)
-        j = df_int_.describe()
+        j = df_int_.describe(percentiles =[0.95,.99],include='all')
+        j = j.round(decimals=2)
+        total = reading_csv.isnull().sum().sort_values(ascending=False)
+        percent = (reading_csv.isnull().sum() / reading_csv.isnull().count() * 100).sort_values(ascending=False)
+        missing_data = pd.concat([total, percent], axis=1, keys=["Total", "Percent"])
+        p=missing_data[missing_data['Percent'] > 0.0]
+        print("ssssssssssssssssssssssss",type(p))
+        print(p)
+        p=p.reset_index()
+        p=p.rename(columns={'index':'Stat Name'})
+        p=p.to_json(orient='records')
+        pp=ast.literal_eval(p)
+        print("sssssssssssssssssssssssssssssss")
+
         k = df_cat_.describe(include='all')
         j = j.reset_index()
         j = j.rename(columns={'index': 'Stat Name'})
@@ -237,7 +259,7 @@ def upload_file_get(request):
         res = {
             "status": "successs",
             "message": "details get is successsss",
-            "data": res, "summary": rem, "NumericalDataSummary": jjj, "CategoricalDataSummary": kkk
+            "data": res, "summary": rem, "NumericalDataSummary": jjj, "CategoricalDataSummary": pp,"missingData":kkk
         }
         return JsonResponse(res)
     except Exception as e:
@@ -464,6 +486,30 @@ def start_modeling(request):
         optimize_hyperparameter = False
         print("==================================================================================")
         print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+        print(X_train)
+
+        print("xtrainxtrain",type(X_test),type(y_test))
+        path = "static"
+        import shutil
+        import os
+        filepath = os.path.join(path, "xtest&ytest")
+        shutil.rmtree(filepath)
+        print("000000000000")
+        print(filepath)
+        print("0000000000000")
+        os.makedirs(filepath, exist_ok=True)
+        file = "X_test.csv"
+        file1="y_test.csv"
+        file_path = os.path.join(filepath, file)
+        file_path1=os.path.join(filepath,file1)
+        print(file_path)
+        print(file_path1)
+        X_test.to_csv(file_path)
+        y_test.to_csv(file_path1)
+
+        print("=====")
+        print(y_test)
+
         # X_te = X_test
         # X_tr = X_train
         # y_te = y_test
@@ -684,17 +730,17 @@ def start_modeling(request):
         IMAGES_PATH = os.path.join(PROJECT_ROOT_DIR, "models_temp", "")
         import shutil
         shutil.rmtree(IMAGES_PATH)
-        os.makedirs(IMAGES_PATH,exist_ok=True)
-        li_path=[]
+        os.makedirs(IMAGES_PATH, exist_ok=True)
+        li_path = []
         for key in modelss.keys():
             joblib.dump(modelss[key], IMAGES_PATH + key + '.sav')
-            patt=os.path.join(IMAGES_PATH,key+".sav")
+            patt = os.path.join(IMAGES_PATH, key + ".sav")
             li_path.append(patt)
             print("LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL")
             print(patt)
             print(li_path)
-        li_pp=str(li_path)
-        print(li_pp,type(li_pp))
+        li_pp = str(li_path)
+        print(li_pp, type(li_pp))
         # import csv
         # path = "static"
         # PROJECT_ROOT_DIR = path
@@ -758,10 +804,32 @@ def start_modeling(request):
         print(
             "========================================================================================================================")
         scoring_dict = dict()
+        emptylist=[]
         from sklearn.metrics import log_loss, accuracy_score, roc_auc_score
         for i in modelss.keys():
             empty_dic = dict()
             result_out = modelss[i][0].predict(X_test)
+            print("avinash")
+            # print(i)
+            # result_out=list(result_out)
+            # print(result_out)
+            # print(result_out,type(result_out))
+            # path = "static"
+            # filepath = os.path.join(path, "resultss")
+            # os.makedirs(filepath, exist_ok=True)
+            # file = "result.csv"
+            # file_path4 = os.path.join(filepath, file)
+            # import csv
+            # with open(file_path4, 'w') as f:
+            #     write = csv.writer(f)
+            #     write.writerow(result_out)
+            # print("23")
+            # # result_out.to_csv(os.path.join(filepath,"resultout.csv"))
+            # print("23")
+            # dic={"model_name":i,"result_out":result_out}
+            # emptylist.append(dic)
+            # print(dic)
+            # print("avinash")
             empty_dic['log_loss'] = log_loss(y_test, result_out)
             empty_dic['roc_auc_score'] = roc_auc_score(y_test, result_out)
             empty_dic['accuracy_score'] = accuracy_score(y_test, result_out)
@@ -772,6 +840,34 @@ def start_modeling(request):
             # print(type(scoring_dict))
         # p=scoring_dict
         # print(val)
+        # emptylist.to_csv(file_path2)
+        # print(emptylist,type(emptylist))
+        #
+        # # path="static"
+        # path = "static"
+        # print("1")
+        #
+        # filepath = os.path.join(path, "result")
+        # print("2")
+        # # shutil.rmtree(filepath)
+        # print("3")
+        # os.makedirs(filepath, exist_ok=True)
+        # print("sasasasa")
+        #
+        # # textfile = "text.json"
+        # file_path3 = os.path.join(filepath, "text.csv")
+        # # with open(path, "w") as fs:
+        #     print("in")
+        #     json.dump(json_string, fs)
+        #     # f.write(json_string)
+        #     print("out")
+        # print(file_path3)
+        # keys = emptylist[0].keys()
+        # import csv
+        # with open(file_path3, 'w', newline='') as output_file:
+        #     dict_writer = csv.DictWriter(output_file, keys)
+        #     dict_writer.writeheader()
+        #     dict_writer.writerows(emptylist)
         new_scoring_dict = pd.DataFrame(scoring_dict).T.to_dict()
         sorted_scoring_dict = dict()
         for key in new_scoring_dict.keys():
@@ -829,7 +925,10 @@ def start_modeling(request):
             split_percentage=split_percentag,
             modells=ds,
             models_path=li_pp,
-            target_variable=dd
+            target_variable=dd,
+            # result=file_path3,
+            xtest=file_path,
+            ytest=file_path1
             # mod_data=app_json
 
         )
@@ -1128,7 +1227,7 @@ def filter_data(new_dict, X_test):
         empty_df = copy.deepcopy(X_test)
         for key in new_dict.keys():
             if key != 'condition':
-                if new_dict[key][1] == '==':
+                if new_dict[key][1] == '=':
                     empty_df = empty_df[empty_df[key] == new_dict[key][0]]
                 if new_dict[key][1] == '<=':
                     empty_df = empty_df[empty_df[key] <= new_dict[key][0]]
@@ -1142,7 +1241,7 @@ def filter_data(new_dict, X_test):
     if new_dict['condition'] == 'OR':
         for key in new_dict.keys():
             if key != 'condition':
-                if new_dict[key][1] == '==':
+                if new_dict[key][1] == '=':
                     empty_df = pd.concat([empty_df, X_test[X_test[key] == new_dict[key][0]]], axis=0)
                 if new_dict[key][1] == '<=':
                     empty_df = pd.concat([empty_df, X_test[X_test[key] <= new_dict[key][0]]], axis=0)
@@ -1183,6 +1282,294 @@ def My_functions(ds):
     # print(modelss)
 
     return modelss
+
+#
+# @api_view(['GET', 'POST', ])
+# def model_evaluation(request):
+#     try:
+#         request_json = json.loads(request.body)
+#         print("++++++++++++++++++", request_json)
+#         # j=request_json
+#         print(type(request_json))
+#         j = request_json["InputFileds"]
+#         print(j)
+#         print("==============================================")
+#         p = request_json["modelevaluated"]
+#         print(p)
+#         print("==========================================")
+#         # modelList=p["modelList"]
+#         modelList = p
+#         print(modelList)
+#         rr = []
+#         rr.append(modelList)
+#         print(rr)
+#
+#         dict_ = dict(zip(range(len(j)), j))
+#         di = dict_
+#         print(di)
+#         temp_dict = dict()
+#         print("[][]+++++++++++++++++++++++++++[][]")
+#         operations_res = json.loads(serializers.serialize("json", models.Sai.objects.all()))
+#         # print("++++++++++++++++++", operations_res)
+#         print(operations_res)
+#         a = operations_res[0]
+#
+#         print(type(a))
+#         p = a["fields"]
+#
+#         target_column = p["target_column"]
+#         print(target_column)
+#         split_percentage = p["split_percentage"]
+#         modells = p["modells"]
+#
+#         # res = ast.literal_eval(modells)
+#
+#         # res=modells.strip('\"')
+#         # res=modells[1:-1]
+#         # ress=res[1:-1]
+#         # res=literal_eval(modells)
+#
+#         print("================")
+#         res = modells.strip('][').split(', ')
+#         rem = []
+#         for ress in res:
+#             print(ress)
+#
+#             ress = ress[1:-1]
+#             print(ress)
+#             rem.append(ress)
+#         print(type(rem))
+#         ds = rem
+#         print(ds)
+#         # modelss = My_function(ds)
+#         print("{][][][][][][][[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[")
+#         # print(modelss)
+#         # print(res[0])
+#
+#         print("[][]+++++++++++++++++++++++++++[][]")
+#
+#         operations_res = json.loads(serializers.serialize("json", models.Upload.objects.all()))
+#         res = []
+#         a = operations_res[0]
+#         p = a["fields"]
+#         print(p)
+#         project_name = p["project_name"]
+#         print(project_name)
+#         path = p["upload_file_path"]
+#         print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+#         print(path)
+#         print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+#         df = pd.read_csv(path)
+#         df_cat = df.select_dtypes(exclude=['float64', 'int64'])
+#         df_int = df.select_dtypes(include=['float64', 'int64'])
+#         df_cat = df_cat.fillna('NA')
+#         df_int = df_int.fillna(0)
+#         df = pd.concat([df_cat, df_int], axis=1)
+#         y = df[target_column]
+#         print(y, "yyyyyyyyyyyy")
+#         X = df.drop(target_column, axis=1)
+#         print(X, "xxxxxxxx")
+#         X = pd.get_dummies(X)
+#         print(X, "Xy xy")
+#         split_percentage = split_percentage
+#         split_percentage = int(split_percentage) / 100
+#         print(type(split_percentage))
+#         print(split_percentage, "split percentage")
+#         global X_train
+#         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=split_percentage, random_state=None)
+#         optimize_hyperparameter = False
+#
+#         print(X_test, X_train, y_train, y_test)
+#         import joblib
+#         import os
+#         path = 'static'
+#         PROJECT_ROOT_DIR = path
+#         IMAGES_PATHh = os.path.join(PROJECT_ROOT_DIR, "models_temp", "")
+#
+#         import pickle
+#         import re
+#
+#         model_names = os.listdir(IMAGES_PATHh)
+#         modelss = dict()
+#         for item in model_names:
+#             modelss[item[:-4]] = joblib.load(IMAGES_PATHh + item)
+#         print("PPPPPPPPPPPPPPP", type(modelss))
+#         print(modelss)
+#
+#         print("saisas")
+#         # ds=['Decision Tree']
+#         # modelss = My_function(ds)
+#         print("{][][][][][][][[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[")
+#
+#         print(modelss)
+#
+#         print("[][]+++++++++++++++++++++++++++[][]")
+#
+#         for value in dict_.values():
+#             print("{}{}{}{}{}")
+#             print(value)
+#             print(df_int, "=================================================================")
+#
+#             if value['selectVariable'] in df_int.columns:
+#                 print("[][][][][][]")
+#                 temp_dict[value['selectVariable']] = [float(value['evaluationValue'])]
+#                 temp_dict[value['selectVariable']].append(value['sampling'])
+#                 temp_dict[value['selectVariable']].append(value['binaryOperation'])
+#                 temp_dict['condition'] = value['binaryOperation']
+#                 # print(temp_dict,"=========")
+#
+#             if value['selectVariable'] in df_cat.columns:
+#                 temp_dict[value['selectVariable'] + '_' + str(value['evaluationValue'])] = [1]
+#                 temp_dict[value['selectVariable'] + '_' + str(value['evaluationValue'])].append(value['sampling'])
+#                 temp_dict[value['selectVariable'] + '_' + str(value['evaluationValue'])].append(
+#                     value['binaryOperation'])
+#                 temp_dict['condition'] = value['binaryOperation']
+#         print(temp_dict, "==================")
+#         print("+++++++++++++++++++++++++++++++++++++++++++")
+#
+#         # temp_dict['condition']==
+#         print("X_test", X_test)
+#         if len(temp_dict) > 0:
+#             X_filter = filter_data(temp_dict, X_test)
+#         else:
+#             X_filter = X_test
+#         print(X_filter.shape)
+#         print("X_filter", X_filter, "====")
+#         y_filter = y_test[y_test.index.isin(X_filter.index)]
+#         print("y_filter", y_filter, "\\\\\\\\\\\\\\\\+++++++++++++++++++++++")
+#         filtered_predictions = dict()
+#         filtered_predictions_prob = dict()
+#         for key in modelss.keys():
+#             print("mounesh")
+#             filtered_predictions[key] = modelss[key][0].predict(X_filter)
+#             filtered_predictions_prob[key] = modelss[key][0].predict_proba(X_filter)
+#         print(filtered_predictions)
+#         print(filtered_predictions_prob)
+#         print("done")
+#         import scikitplot as skplt
+#         # import scikitplot.plotters as skplt
+#         # import scikitplot.metrics.plot_roc as skplt
+#         import matplotlib.pyplot as plt
+#
+#         path = "static"
+#         PROJECT_ROOT_DIR = path
+#         CHAPTER_ID = "classification"
+#         IMAGES_PATH = os.path.join(PROJECT_ROOT_DIR, "sai", CHAPTER_ID, "")
+#         # conf_path = os.path.join(PROJECT_ROOT_DIR, "images", "conf")
+#         # print(conf_path)
+#         print(IMAGES_PATH)
+#         os.makedirs(IMAGES_PATH, exist_ok=True)
+#         # os.makedirs(conf_path, exist_ok=True)
+#         # s = os.path.join(IMAGES_PATH, "\\")
+#         # s=IMAGES_PATH+s
+#         # print(s)
+#
+#         for key, value in filtered_predictions_prob.items():
+#             print("++++++")
+#             skplt.metrics.plot_roc_curve(y_filter.values, value)
+#             print("+++++++++++++++")
+#             plt.savefig(IMAGES_PATH + 'roc.png')
+#
+#         temp_fig_path = 'roc.png'
+#         imagepath = os.path.join(IMAGES_PATH, temp_fig_path)
+#         # imagepath = IMAGES_PATH + temp_fig_path
+#         print(imagepath, "temp_fig_path")
+#         print("dodododododododo")
+#         path = "static"
+#         PROJECT_ROOT_DIR = path
+#         conf_path = os.path.join(PROJECT_ROOT_DIR, "images", "conf", "")
+#         print("000000000000")
+#         print(conf_path)
+#         print("0000000000000")
+#         os.makedirs(conf_path, exist_ok=True)
+#         import seaborn as sns
+#         from sklearn.metrics import confusion_matrix
+#         for key, value in filtered_predictions.items():
+#             print("++++++")
+#
+#             cm = confusion_matrix(y_filter.values, value)
+#             f = sns.heatmap(cm, annot=True, fmt='d')
+#             plt.savefig(conf_path + 'confusion.png')
+#         temp_path = 'confusion.png'
+#         # confimage = conf_path + temp_path
+#         confimage = os.path.join(conf_path, temp_path)
+#         print(confimage, "confusion path")
+#         ppp = "http:\\\localhost:8000"
+#         rc = os.path.join(ppp, imagepath)
+#         co = os.path.join(ppp, confimage)
+#
+#         print(rc, type(rc))
+#         print(co, type(co))
+#         # rc = imagepath
+#         # co = confimage
+#         # co="http://localhost:8000/static/images/conf/confusion.png"
+#         # rc="http://localhost:8000/static/images/classification/roc.png"
+#         # jobs_res = models.Image.objects.all().delete()
+#         # current_date = datetime.datetime.now()
+#         # Id_val = int(current_date.strftime("%Y%m%d%H%M%S"))
+#         # image_create = models.Image(
+#         #     image_id=Id_val,
+#         #     file_path_roc=rc,
+#         #     file_path_con=co
+#         #
+#         #
+#         # )
+#         # image_create.save()
+#         # print("after")
+#         a_dict = {}
+#
+#         for variable in ["rc", "co"]:
+#             a_dict[variable] = eval(variable)
+#         print(a_dict, "{}{}{}{}{}{")
+#         rem = {
+#             "roc_image": "http://localhost:8000/static/images/classification/rf_classifier.png",
+#             "con_image": "http://localhost:8000/static/images/conf/rf_classifier.png"}
+#         imagess = {"roc_image": rc,
+#                    "con_image": co}
+#         images = dict()
+#         for k, v in imagess.items():
+#             images[k] = (str(v.replace('\\', '/')))
+#
+#         # images
+#         print(images)
+#         jobs_res = models.Image.objects.all().delete()
+#         current_date = datetime.datetime.now()
+#         Id_val = int(current_date.strftime("%Y%m%d%H%M%S"))
+#         image_create = models.Image(
+#             image_id=Id_val,
+#             file_path_roc=rc,
+#             file_path_con=co
+#
+#         )
+#         image_create.save()
+#         print("after")
+#         print("saisasasa")
+#
+#         # import numpy as np
+#         from sklearn.metrics import precision_recall_fscore_support, accuracy_score
+#         for key, value in filtered_predictions.items():
+#             y_true = y_filter
+#             y_pred = value
+#             j = precision_recall_fscore_support(y_true, y_pred, average='macro')
+#             precision_, recall_, f1_score_, accuracy_ = j[0], j[1], j[2], accuracy_score(y_true, y_pred)
+#             dictionary_for_confusion = {'precision': precision_, 'recall': recall_, 'f1_score': f1_score_,
+#                                         'accuracy': accuracy_}
+#         print(dictionary_for_confusion, "dictionary_for_confusion")
+#         res = {
+#             "status": "success",
+#             "message": "details get is successsss",
+#             "data": dictionary_for_confusion
+#
+#         }
+#         return JsonResponse(res)
+#     except Exception as e:
+#         res = {
+#             "status": "failed",
+#             "message": str(e)
+#         }
+#         return JsonResponse(res)
+
+
 @api_view(['GET', 'POST', ])
 def model_evaluation(request):
     try:
@@ -1328,13 +1715,14 @@ def model_evaluation(request):
         print("+++++++++++++++++++++++++++++++++++++++++++")
 
         # temp_dict['condition']==
-        print("X_test", X_test)
+        print("X_test", X_test.columns)
+        print(X_test)
         if len(temp_dict) > 0:
             X_filter = filter_data(temp_dict, X_test)
         else:
             X_filter = X_test
         print(X_filter.shape)
-        print("X_filter", X_filter, "====")
+        print("X_filter", X_filter, "====","avinash")
         y_filter = y_test[y_test.index.isin(X_filter.index)]
         print("y_filter", y_filter, "\\\\\\\\\\\\\\\\+++++++++++++++++++++++")
         filtered_predictions = dict()
@@ -1353,7 +1741,7 @@ def model_evaluation(request):
         path = "static"
         PROJECT_ROOT_DIR = path
         CHAPTER_ID = "classification"
-        IMAGES_PATH = os.path.join(PROJECT_ROOT_DIR, "sai", CHAPTER_ID, "")
+        IMAGES_PATH = os.path.join(PROJECT_ROOT_DIR, "sa", CHAPTER_ID, "")
         # conf_path = os.path.join(PROJECT_ROOT_DIR, "images", "conf")
         # print(conf_path)
         print(IMAGES_PATH)
@@ -1376,7 +1764,7 @@ def model_evaluation(request):
         print("dodododododododo")
         path = "static"
         PROJECT_ROOT_DIR = path
-        conf_path = os.path.join(PROJECT_ROOT_DIR, "images", "conf", "")
+        conf_path = os.path.join(PROJECT_ROOT_DIR, "images", "con", "")
         print("000000000000")
         print(conf_path)
         print("0000000000000")
@@ -1430,18 +1818,6 @@ def model_evaluation(request):
             images[k] = (str(v.replace('\\', '/')))
 
         # images
-        print(images)
-        jobs_res = models.Image.objects.all().delete()
-        current_date = datetime.datetime.now()
-        Id_val = int(current_date.strftime("%Y%m%d%H%M%S"))
-        image_create = models.Image(
-            image_id=Id_val,
-            file_path_roc=rc,
-            file_path_con=co
-
-        )
-        image_create.save()
-        print("after")
 
         # import numpy as np
         from sklearn.metrics import precision_recall_fscore_support, accuracy_score
@@ -1453,10 +1829,29 @@ def model_evaluation(request):
             dictionary_for_confusion = {'precision': precision_, 'recall': recall_, 'f1_score': f1_score_,
                                         'accuracy': accuracy_}
         print(dictionary_for_confusion, "dictionary_for_confusion")
+        res = dict()
+        for key in dictionary_for_confusion:
+            # rounding to K using round()
+            res[key] = round(dictionary_for_confusion[key], 3)
+        print(res)
+        print(images)
+        jobs_res = models.Image.objects.all().delete()
+        current_date = datetime.datetime.now()
+        Id_val = int(current_date.strftime("%Y%m%d%H%M%S"))
+        image_create = models.Image(
+            image_id=Id_val,
+            file_path_roc=rc,
+            file_path_con=co,
+            data=dictionary_for_confusion
+
+        )
+        image_create.save()
+        print("after")
+
         res = {
             "status": "success",
             "message": "details get is successsss",
-            "data": dictionary_for_confusion
+            "data": res
 
         }
         return JsonResponse(res)
@@ -1466,22 +1861,417 @@ def model_evaluation(request):
             "message": str(e)
         }
         return JsonResponse(res)
+import sklearn
+import re
+import copy
+import pickle
+import json
+import pandas as pd
+from sklearn.metrics import roc_curve
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+import matplotlib.pyplot as plt
 
 
 
-
-@api_view(['GET', 'POST', ])
-def imagepath(request):
+api_view(['GET', 'POST', ])
+def finalimagepath(request):
     try:
-        rem= {
-            "roc_image": "http://localhost:8000/static/images/classification/roc.png",
-            "con_image": "http://localhost:8000/static/images/conf/confusion.png"}
-        res = {"status": "success", "message": "upload created successfully", "image":rem}
+        operations_res = json.loads(serializers.serialize("json", models.Segment.objects.all()))
+        print(operations_res)
+        fields = []
+        for i in operations_res:
+            print("00.1")
+            segment = "segment" + str(len(fields))
+            l = i["fields"]
+            m = l["rule_data"]
+
+            res = ast.literal_eval(m)
+            p = res["InputFileds"]
+            pp = p[0]
+            mm = res["modelevaluated"]
+            pp.update([('modelevaluated', mm)])
+            del pp['id']
+            print(pp, "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+            # fields.append(pp)
+
+            segment_data = ast.literal_eval(m)
+            # seg = {"InputFileds": fields}
+
+            for item in segment_data.get("InputFileds"):
+                del item["id"]
+                item["modelevaluated"] = segment_data.get("modelevaluated")
+            del segment_data["modelevaluated"]
+            fields.append({segment: segment_data})
+
+            operations_res = json.loads(serializers.serialize("json", models.Rules.objects.all()))
+            print(operations_res)
+            for i in operations_res:
+                p = i["fields"]
+                l = p["rule_data"]
+                res = ast.literal_eval(l)
+                print(type(res))
+            rules = {'Rules': res}
+
+        res = {"rules": rules, "segment": fields}
+
+        json_string = json.dumps(res)
+
+        path = "static"
+        import os
+        filepath = os.path.join(path, "seg")
+        shutil.rmtree(filepath)
+        print("000000000000")
+        print(filepath)
+        print("0000000000000")
+        os.makedirs(filepath, exist_ok=True)
+        file = "Segment_Rules.json"
+        file_path = os.path.join(filepath, file)
+
+        with open(file_path, 'w') as fs:
+            json.dump(json_string, fs)
+        operations = json.loads(serializers.serialize("json", models.Upload.objects.all()))
+        res = []
+        print(operations)
+        print(type(operations))
+        a = operations[0]
+        p = a["fields"]
+        filepat = p["upload_file_path"]
+        print(filepat)
+        operations_res = json.loads(serializers.serialize("json", models.Sai.objects.all()))
+        i=operations_res[0]
+        print(i)
+        ii=i["fields"]
+        rank=ii["model_res"]
+        d = ast.literal_eval(rank)
+        dd=d[0]
+        rank1= dd["accuracy_score"]
+        rank1=rank1["rank1"]
+        base_model=rank1+".sav"
+        print("ramram")
+        print(base_model)
+        print(rank1)
+        # result_out=ii["result"]
+        X_test=ii["xtest"]
+        y_test=ii["ytest"]
+
+        # name_records = pd.read_csv(result_out)
+        # name_records = name_records.to_dict('records')
+        # print(name_records)
+        # for i in name_records:
+        #     print(i)
+        #     if i["model_name"] == rank1:
+        #         print("sai")
+        #         y_pred = i["result_out"]
+        #         print(y_pred)
+        #     else:
+        #         continue
+        # print(y_pred)
+
+
+        # starting
+
+        # df = pd.read_csv(path)  # Need to read the original data from the folder.
+        # X_test = pd.read_csv(X_test)
+        # X_test = X_test.iloc[:, 1:]
+        # y_test=pd.read_csv(y_test)
+        #
+        # y_test = y_test.iloc[:, -1:]
+        # X_test['y_actual'] = y_test
+        # X_test['y_pred'] = result_out
+        import os
+        path="static"
+        pathh=os.path.join(path,"seg")
+        pathhh=os.path.join(pathh,"segment_rules.json")
+
+        print("1.1")
+        f = open(pathhh)
+        print("1.2")
+        seg_rules_dict = json.load(f)
+        print("1.4")
+        print(seg_rules_dict,type(seg_rules_dict))
+        d = ast.literal_eval(seg_rules_dict)
+        # f = open('Segment_Rules.json')
+        # seg_rules_dict = json.load(f)
+
+        # In[209]:
+
+        # Creating a dictionary for segment and model names
+        temp_seg_dict = d["segment"]
+
+        print("1.4.11")
+        seg_models = {}
+        print("1.4.1")
+        for i in range(len(temp_seg_dict)):
+            print("1.5")
+            temp = temp_seg_dict[i]['segment' + str(i)]['InputFileds'][0]['modelevaluated']
+            seg_models.update({'segment' + str(i): temp})
+
+        # In[210]:
+
+        # Loading the models
+        import joblib
+        import os
+        seg_models_dic = {}
+        for i in range(len(temp_seg_dict)):
+            print("1.6")
+            filename = seg_models['segment' + str(i)] + '.sav'
+            print(filename)
+            path = os.path.join("static", "models_temp", filename)
+            loaded_model = joblib.load(open(path, 'rb'))
+            print("1.7")
+            # loaded_model = joblib.load(open(filename, 'rb'))
+            model_name = seg_models['segment' + str(i)]
+            seg_models_dic.update({model_name: loaded_model})
+        # Loading base model
+
+        filename = base_model
+        path = os.path.join("static", "models_temp", filename)
+        base_model = joblib.load(open(path, 'rb'))
+        print("1.4")
+
+        # In[ ]:
+
+        df = pd.read_csv(filepat)  # Need to read the original data from the folder.
+        print("1.8")
+        df_cat_ = df.select_dtypes(exclude=['float64', 'int64'])
+        df_int_ = df.select_dtypes(include=['float64', 'int64'])
+        df_cat_.fillna('NA')
+        df_int_.fillna(0)
+        X_test = pd.read_csv( X_test)
+        X_test = X_test.iloc[:, 1:]
+        y_test = pd.read_csv(y_test)
+        y_test = y_test.iloc[:, -1:]
+        X_test['y_pred'] = base_model[0].predict(X_test)
+        X_test['y_actual'] = y_test  # predicted values of best model
+        print("1.9")
+
+        # In[212]:
+
+        # Functions to filter Data, Segmentation,Rules:
+
+        # def filter_data(new_dict, df):
+        #     print("1.9.1")
+        #     empty_df = pd.DataFrame()
+        #     print("1.1.1.1.1.1")
+        #     if new_dict['condition'] == 'AND':
+        #         empty_df = copy.deepcopy(df)
+        #         for key in new_dict.keys():
+        #             print("1.9.1.1.1")
+        #             if key != 'condition':
+        #                 if new_dict[key][1] == '=':
+        #                     empty_df = empty_df[empty_df[key] == new_dict[key][0]]
+        #                 if new_dict[key][1] == '<=':
+        #                     empty_df = empty_df[empty_df[key] <= new_dict[key][0]]
+        #                 if new_dict[key][1] == '>=':
+        #                     empty_df = empty_df[empty_df[key] >= new_dict[key][0]]
+        #                 if new_dict[key][1] == '<':
+        #                     empty_df = empty_df[empty_df[key] < new_dict[key][0]]
+        #                 if new_dict[key][1] == '>':
+        #                     empty_df = empty_df[empty_df[key] > new_dict[key][0]]
+        #
+        #     if new_dict['condition'] == 'OR':
+        #         print("1.9.1.1")
+        #         for key in new_dict.keys():
+        #             if key != 'condition':
+        #                 if new_dict[key][1] == '=':
+        #                     empty_df = pd.concat([empty_df, X_test[X_test[key] == new_dict[key][0]]], axis=0)
+        #                 if new_dict[key][1] == '<=':
+        #                     empty_df = pd.concat([empty_df, X_test[X_test[key] <= new_dict[key][0]]], axis=0)
+        #                 if new_dict[key][1] == '>=':
+        #                     empty_df = pd.concat([empty_df, X_test[X_test[key] >= new_dict[key][0]]], axis=0)
+        #                 if new_dict[key][1] == '<':
+        #                     empty_df = pd.concat([empty_df, X_test[X_test[key] < new_dict[key][0]]], axis=0)
+        #                 if new_dict[key][1] == '>':
+        #                     empty_df = pd.concat([empty_df, X_test[X_test[key] > new_dict[key][0]]], axis=0)
+        #
+        #     return empty_df
+
+        def SegmentModelling_validationSet(X_test, seg_models_dic, temp_seg_dict, seg_models, df_int_, df_cat_):
+
+            for i in range(len(temp_seg_dict)):
+                print("1.9.2")
+                dict_x = {}
+                x = temp_seg_dict[i]['segment' + str(i)]['InputFileds'][0]
+                del x['modelevaluated']
+                dict_x.update({1: x})
+                temp_dict = dict()
+
+                for value in dict_x.values():
+                    print("1.9.2.1")
+                    print(value,type(value))
+                    if value['selectVariable'] in df_int_.columns:
+                        print("1.91.1")
+                        temp_dict[value['selectVariable']] = [float(value['evaluationValue'])]
+                        temp_dict[value['selectVariable']].append(value['sampling'])
+                        temp_dict[value['selectVariable']].append(value['binaryOperation'])
+                        temp_dict['condition'] = value['binaryOperation']
+                    if value['selectVariable'] in df_cat_.columns:
+                        print("1.1.1.1.1.1.1.1")
+                        temp_dict[value['selectVariable'] + '_' + str(value['evaluationValue'])] = [1]
+                        temp_dict[value['selectVariable'] + '_' + str(value['evaluationValue'])].append(
+                            value['sampling'])
+                        temp_dict[value['selectVariable'] + '_' + str(value['evaluationValue'])].append(
+                            value['binaryOperation'])
+                        temp_dict['condition'] = value['binaryOperation']
+                        print(value)
+
+                X_filter = filter_data(temp_dict, X_test)
+                print(X_test.shape,type(X_test.shape))
+                rows = X_test.shape[0]
+                print(X_filter.shape, type(X_filter.shape))
+                if X_filter.shape[0] > 0 & X_filter.shape[0] < rows:
+                    print("2.2.2.2.2.2")
+                    X_test = pd.concat([X_test, X_filter]).drop_duplicates(keep=False)
+                    model_name = seg_models['segment' + str(i)]
+                    model = seg_models_dic[model_name]
+                    actual = X_filter['y_actual']
+                    X_filter = X_filter.drop(['y_pred'], axis=1)
+                    X_filter = X_filter.drop(['y_actual'], axis=1)
+                    y_filter = model[0].predict(X_filter)
+                    X_filter['y_actual'] = actual
+                    X_filter['y_pred'] = y_filter
+                    X_test = X_test.append(X_filter)
+                    print("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
+            print(X_test)
+            return X_test
+
+        def ApplyingRules(temp_rules_dict, modeled_df, df_int_, df_cat_):
+            print("121212121212121212")
+
+            for i in range(len(temp_rules_dict)):
+                dict_x = {}
+                temp = temp_rules_dict['Rules'][i]
+                dict_x = {1: temp}
+                temp_dict = dict()
+                for value in dict_x.values():
+                    if value['selectVariable'] in df_int_.columns:
+                        temp_dict[value['selectVariable']] = [float(value['evaluationValue'])]
+                        temp_dict[value['selectVariable']].append(value['selectOperator'])
+                        temp_dict['condition'] = value['selectOperation']
+                    if value['selectVariable'] in df_cat_.columns:
+                        temp_dict[value['selectVariable'] + '_' + str(value['evaluationValue'])] = [1]
+                        temp_dict[value['selectVariable'] + '_' + str(value['evaluationValue'])].append(
+                            value['selectOperator'])
+                        temp_dict['condition'] = value['selectOperation']
+                X_filter = filter_data(temp_dict, modeled_df)
+                modeled_df = pd.concat([modeled_df, X_filter]).drop_duplicates(keep=False)
+                X_filter['y_pred'] = temp_rules_dict['Rules'][i]['selectedVariable']
+                modeled_df = modeled_df.append(X_filter)
+
+            return modeled_df
+
+        # In[215]:
+
+        results = SegmentModelling_validationSet(X_test, seg_models_dic, temp_seg_dict, seg_models, df_int_, df_cat_)
+        print(results)
+        print("sai")
+
+        # In[217]:
+
+        # temp_rules_dict = seg_rules_dict
+        # print(temp_seg_dict,type(temp_seg_dict))
+        temp_rules_dict = d["rules"]
+
+
+        # In[219]:
+
+        final_df = ApplyingRules(temp_rules_dict, results, df_int_, df_cat_)
+        print("656565656565656")
+
+        # In[221]:
+
+        y_pred = list(final_df['y_pred'])
+        y_actual = list(final_df['y_actual'])
+
+        # In[222]:
+
+        from sklearn.metrics import confusion_matrix
+
+        # Generate the confusion matrix
+        cf_matrix = confusion_matrix(y_actual, y_pred)
+
+        # In[223]:
+
+        import seaborn as sns
+
+        ax = sns.heatmap(cf_matrix, annot=True, cmap='Blues')
+
+        ax.set_title('Seaborn Confusion Matrix with labels\n\n');
+        ax.set_xlabel('\nPredicted Values')
+        ax.set_ylabel('Actual Values ');
+
+        ## Ticket labels - List must be in alphabetical order
+        ax.xaxis.set_ticklabels(['False', 'True'])
+        ax.yaxis.set_ticklabels(['False', 'True'])
+
+        ## Display the visualization of the Confusion Matrix.
+        # plt.show()
+        path = "static"
+        PROJECT_ROOT_DIR = path
+        CHAPTER_ID = "finalimage"
+        IMAGES_PATH = os.path.join(PROJECT_ROOT_DIR, CHAPTER_ID, "")
+        # conf_path = os.path.join(PROJECT_ROOT_DIR, "images", "conf")
+        # print(conf_path)
+        print(IMAGES_PATH)
+        os.makedirs(IMAGES_PATH, exist_ok=True)
+        plt.savefig(IMAGES_PATH +'_confusion.png')
+        name="_confusion.png"
+        finalimagepath=os.path.join(IMAGES_PATH,name)
+        print(finalimagepath)
+        ppp = "http:\\\localhost:8000"
+        rc = os.path.join(ppp, finalimagepath)
+        print(rc)
+        rm=str(rc.replace('\\', '/'))
+        print(rm)
+        plt.close()
+
+
+        # In[204]:
+
+        from sklearn.metrics import log_loss, accuracy_score, roc_auc_score
+
+        # In[205]:
+
+        empty_dic = dict()
+        empty_dic['log_loss'] = log_loss(y_actual, y_pred)
+        empty_dic['roc_auc_score'] = roc_auc_score(y_actual, y_pred)
+        empty_dic['accuracy_score'] = accuracy_score(y_actual, y_pred)
+
+        # In[206]:
+
+        empty_dic
+        print(empty_dic)
+        res = dict()
+        for key in empty_dic:
+            # rounding to K using round()
+            res[key] = round(empty_dic[key], 3)
+        print(res)
+        reee=[res]
+
+        rem = {
+            "con_image": rm}
+        res = {"status": "success", "message": "upload created successfully", "image": rem,"scores":reee}
         return JsonResponse(res)
     except Exception as e:
         print("error:", e)
         res = {"status": "failed", "message": str(e)}
         return JsonResponse(res)
+
+@api_view(['GET', 'POST', ])
+def imagepath(request):
+    try:
+        rem = {
+            "roc_image": "http://localhost:8000/static/images/classification/roc.png",
+            "con_image": "http://localhost:8000/static/images/conf/confusion.png"}
+        res = {"status": "success", "message": "upload created successfully", "image": rem}
+        return JsonResponse(res)
+    except Exception as e:
+        print("error:", e)
+        res = {"status": "failed", "message": str(e)}
+        return JsonResponse(res)
+
+
 @api_view(['GET', 'POST', ])
 def image_eva(request):
     try:
@@ -1490,6 +2280,16 @@ def image_eva(request):
         im = operations_res[0]
         ima = im["fields"]
         print(ima)
+        data=ima["data"]
+        print(data,type(data))
+
+        d=ast.literal_eval(data)
+        res = dict()
+        for key in d:
+            # rounding to K using round()
+            res[key] = round(d[key], 3)
+        print(res)
+        finaldata=[res]
         images = dict()
         for k, v in ima.items():
             images[k] = (str(v.replace('\\', '/')))
@@ -1497,7 +2297,8 @@ def image_eva(request):
         res = {
             "status": "successs",
             "message": "details get is successsss",
-            "Image": images
+            "Image": images,
+            "data":finaldata
 
         }
         return JsonResponse(res)
@@ -1507,10 +2308,12 @@ def image_eva(request):
             "message": str(e)
         }
         return JsonResponse(res)
+
+
 @api_view(['GET', 'POST', ])
 def freezedata(request):
     try:
-        request_freeje=json.loads(request.body)
+        request_freeje = json.loads(request.body)
         print("frontend")
         print(request_freeje)
         print("frontend")
@@ -1524,65 +2327,104 @@ def freezedata(request):
         Segment_create.save()
         print("after")
 
-        res={"status": "success", "message": "freeze data successfully","data":request_freeje}
+        res = {"status": "success", "message": "freeze data successfully", "data": request_freeje}
         return JsonResponse(res)
     except Exception as e:
         print("error:", e)
         res = {"status": "failed", "message": str(e)}
         return JsonResponse(res)
+
+
+def get_formated_description(rule_data):
+    desription = "if "
+    dict_rule_data = ast.literal_eval(rule_data)
+    for item in dict_rule_data.get("InputFileds"):
+        desription = desription + item.get("selectVariable") + " " + item.get("sampling") + " " + item.get(
+            "evaluationValue") + " " + item.get("binaryOperation") + " "
+    return desription
+
+
 @api_view(['GET', 'POST', ])
 def sendfreezedata(request):
     try:
         # jobs_res = models.Segment.objects.all().delete()
         operations_res = json.loads(serializers.serialize("json", models.Segment.objects.all()))
         print(operations_res)
-        fields=[]
-        for i in operations_res:
-            l=i["fields"]
-            m=l["rule_data"]
+        # fields=[]
+        field_list = []
 
-            res = ast.literal_eval(m)
-            p=res["InputFileds"]
-            pp=p[0]
-            mm=res["modelevaluated"]
-            pp.update([('modelevaluated',mm)])
-            del pp['id']
-            print(pp)
-            fields.append(pp)
-            res={"InputFileds":fields}
+        for item in operations_res:
+            segment = "segment" + str(len(field_list))
+            formated_description = get_formated_description(item.get("fields").get("rule_data"))
+            field_list.append({"segment": segment,
+                               "modelevaluated": ast.literal_eval(item.get("fields").get("rule_data")).get(
+                                   "modelevaluated", " "),
+                               "description": formated_description.rstrip(),
+                               })
 
+        # for i in operations_res:
+        #     l=i["fields"]
+        #     m=l["rule_data"]
 
-
-
-
-
-
-        res={"status": "success", "message": "freeze data successfully","InputFileds":fields}
+        #     res = ast.literal_eval(m)
+        #     p=res["InputFileds"]
+        #     pp=p[0]
+        #     mm=res["modelevaluated"]
+        #     pp.update([('modelevaluated',mm)])
+        #     del pp['id']
+        #     print(pp)
+        #     fields.append(pp)
+        #     res={"InputFileds":fields}
+        res = {"status": "success", "message": "freeze data successfully", "InputFileds": field_list}
         return JsonResponse(res)
     except Exception as e:
         print("error:", e)
         res = {"status": "failed", "message": str(e)}
         return JsonResponse(res)
+
 
 @api_view(['GET', 'POST', ])
 def rulesdata(request):
     try:
         # jobs_res = models.Segment.objects.all().delete()
-        operations_res = json.loads(serializers.serialize("json", models.Rules.objects.all()))
-        print(operations_res)
-        for i in operations_res:
-           p=i["fields"]
-           l=p["rule_data"]
-           res = ast.literal_eval(l)
-           print(type(res))
-        rem={'Rules':res}
+        # operations_res = json.loads(serializers.serialize("json", models.Rules.objects.all()))
+        # print(operations_res)
+        # for i in operations_res:
+        #    p=i["fields"]
+        #    l=p["rule_data"]
+        #    res = ast.literal_eval(l)
+        #    print(type(res))
+        # rem={'Rules':res}
 
-        res={"status": "success", "message": "freeze data successfully","rules":rem}
+        # res={"status": "success", "message": "freeze data successfully","rules":rem}
+
+        rdata = json.loads(serializers.serialize("json", models.Rules.objects.all()))
+        unique_rules = []
+        for ritem in ast.literal_eval(rdata[0].get("fields").get("rule_data")):
+            if ritem.get("Rule") not in unique_rules:
+                unique_rules.append(ritem.get("Rule"))
+        rule_data = []
+        for urule in unique_rules:
+            description = "if "
+            for s_item in [item for item in ast.literal_eval(rdata[0].get("fields").get("rule_data")) if
+                           item["Rule"] == urule]:
+                description = description + s_item.get("selectVariable") + " " + s_item.get(
+                    "selectOperator") + " " + s_item.get("evaluationValue") + " " + s_item.get("selectOperation") + " "
+            rule_data.append({
+                "Rule": urule,
+                "selectedVariable": s_item.get("selectedVariable"),
+                "description": description.rstrip()
+            })
+
+        res = {"status": "success", "message": "freeze data successfully", "rules": rule_data}
+
         return JsonResponse(res)
     except Exception as e:
         print("error:", e)
         res = {"status": "failed", "message": str(e)}
         return JsonResponse(res)
+
+
 @api_view(['GET', 'POST', ])
 def download(request):
     try:
@@ -1590,6 +2432,7 @@ def download(request):
         print(operations_res)
         fields = []
         for i in operations_res:
+            segment = "segment" + str(len(fields))
             l = i["fields"]
             m = l["rule_data"]
 
@@ -1599,9 +2442,18 @@ def download(request):
             mm = res["modelevaluated"]
             pp.update([('modelevaluated', mm)])
             del pp['id']
-            print(pp)
-            fields.append(pp)
-            seg = {"InputFileds": fields}
+            print(pp, "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+            # fields.append(pp)
+
+            segment_data = ast.literal_eval(m)
+            # seg = {"InputFileds": fields}
+
+            for item in segment_data.get("InputFileds"):
+                del item["id"]
+                item["modelevaluated"] = segment_data.get("modelevaluated")
+            del segment_data["modelevaluated"]
+            fields.append({segment: segment_data})
+
             operations_res = json.loads(serializers.serialize("json", models.Rules.objects.all()))
             print(operations_res)
             for i in operations_res:
@@ -1611,13 +2463,94 @@ def download(request):
                 print(type(res))
             rules = {'Rules': res}
 
-        res = {"status": "success", "message": "dowmload created successfully","rules":rules,"segment":seg }
-        return JsonResponse(res)
+
+        res = { "rules": rules, "segment": fields}
+
+        json_string =json.dumps(res)
+
+
+        path = "static"
+
+        filepath = os.path.join(path, "Download")
+        shutil.rmtree(filepath)
+        print("000000000000")
+        print(filepath)
+        print("0000000000000")
+        os.makedirs(filepath, exist_ok=True)
+        file="Segment_Rules.json"
+        file_path=os.path.join(filepath,file)
+
+        with open(file_path,'w') as fs:
+            json.dump(json_string,fs)
+        # pythonscript=os.path.join("static","pythonscript")
+        # shutil.copytree(pythonscript,filepath)
+        modes=os.path.join("static","models_temp")
+        # mode=os.path.join(filepath,"models")
+        # os.makedirs(mode, exist_ok=True)
+        # shutil.copytree(modes, filepath)
+        files=os.listdir(modes)
+        for name in files:
+            shutil.copy2(os.path.join(modes,name),filepath)
+        pythonscript=os.path.join("static","pythonscript")
+        file = os.listdir(pythonscript)
+        for name in file:
+            shutil.copy2(os.path.join(pythonscript, name), filepath)
+        # scriptfile=os.path.join(filepath,"script")
+        # shutil.copytree(pythonscript,scriptfile)
+        from shutil import make_archive
+        from wsgiref.util import FileWrapper
+        file_name="script"
+        path_to_zip = make_archive(filepath, "zip", filepath)
+        response = HttpResponse(FileWrapper(open(path_to_zip, 'rb')), content_type='application/zip')
+        response['Content-Disposition'] = 'attachment; filename="{filename}.zip"'.format(
+            filename=file_name.replace(" ", "_")
+        )
+        print(path_to_zip)
+        down={"dowmload_path":"http: // localhost: 8000 / static /Download.zip" }
+        return response
     except Exception as e:
         print("error:", e)
         res = {"status": "failed", "message": str(e)}
         return JsonResponse(res)
 
+
+def segmentmodelling(df, seg_models, temp_seg_dict, models):
+    df_cat_ = df.select_dtypes(exclude=['float64', 'int64'])
+    df_int_ = df.select_dtypes(include=['float64', 'int64'])
+    df_cat_.fillna('NA')
+    df_int_.fillna(0)
+    # One hot encoding for categorical features.
+    # df_cat_ = pd.get_dummies(df_cat_)
+    df = pd.concat([df_cat_, df_int_], axis=1)
+    modeled_df = pd.DataFrame()
+    for i in range(len(temp_seg_dict)):
+        dict_x = {}
+        x = temp_seg_dict[i]['segment' + str(i)]['InputFileds'][0]
+        del x['modelevaluated']
+        dict_x.update({1: x})
+        temp_dict = dict()
+
+        for value in dict_x.values():
+            if value['selectVariable'] in df_int_.columns:
+                temp_dict[value['selectVariable']] = [float(value['evaluationValue'])]
+                temp_dict[value['selectVariable']].append(value['sampling'])
+                temp_dict[value['selectVariable']].append(value['binaryOperation'])
+                temp_dict['condition'] = value['binaryOperation']
+            if value['selectVariable'] in df_cat_.columns:
+                temp_dict[value['selectVariable'] + '_' + str(value['evaluationValue'])] = [1]
+                temp_dict[value['selectVariable'] + '_' + str(value['evaluationValue'])].append(value['sampling'])
+                temp_dict[value['selectVariable'] + '_' + str(value['evaluationValue'])].append(
+                    value['binaryOperation'])
+                temp_dict['condition'] = value['binaryOperation']
+
+        X_filter = filter_data(temp_dict, df)
+        model_name = seg_models['segment' + str(i)]
+        # Need to pick up the respective model from models
+        filtered_predictions = model.predict(X_filter)
+        X_filter['target_variable'] = filtered_predictions
+        modeled_df = modeled_df.append(X_filter)
+
+        return modeled_df
 
 
 @api_view(['GET', 'POST', ])
@@ -1630,8 +2563,8 @@ def rulebased(request):
         print(type(operations_res))
         a = operations_res[0]
         p = a["fields"]
-        target_variable=p["target_column"]
-        run_models=p["modells"]
+        target_variable = p["target_column"]
+        run_models = p["modells"]
         new_list = []
         for i in range(len(request_json['Rules'])):
             Rule = request_json['Rules'][i]['ruleInputs']
@@ -1639,7 +2572,7 @@ def rulebased(request):
                 Rule[k].update({'Rule': 'Rule' + str(i)})
             new_list.append(Rule)
         print("\\\\\=======///////")
-        li=[]
+        li = []
         for i in new_list:
             for j in i:
                 del j['id']
@@ -1685,13 +2618,13 @@ def rulebased(request):
         print(type(run_models))
         res = ast.literal_eval(run_models)
 
-
-        res = {"status": "success", "message": "upload created successfully", "rules": "sa" ,"models":res}
+        res = {"status": "success", "message": "upload created successfully", "rules": "sa", "models": res}
         return JsonResponse(res)
     except Exception as e:
         print("error:", e)
         res = {"status": "failed", "message": str(e)}
         return JsonResponse(res)
+
 
 def logistic_regression(params={"C": [0.01, 0.1, 1, 10, 100, 1000]},
                         folds=KFold(n_splits=5, shuffle=True, random_state=4)

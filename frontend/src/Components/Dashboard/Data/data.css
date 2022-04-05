@@ -1,50 +1,49 @@
-.uploadButton{
-    background-color: green;
-    padding: 0;
-    cursor: pointer;
-    color: inherit;
-    font-family: 'Poppins', sans-serif;
-    font-weight: 700;
-    font-size: 20px;
-    line-height: 1.75;
-    letter-spacing: 0.02857em;
-    text-transform: uppercase;
-    min-width: 64px;
-    padding: 7px 21px;
-    border-radius: 4px;
-    border: 1px solid rgba(0, 8, 1, 0.5);
-    color: #fff;
+.dataSummary{
+    position: static;
+    margin-top: 60px;
 }
-.edgeDetailData{
-    position: absolute;
-    top: 250px;
-    left: 4%;
+.dataSummaryData{
+    color: #000;
+    overflow-y:auto;
+    overflow-x: auto;
+
+  }
+  .catData{
+    color: #000;
+    overflow-y:auto;
+    overflow-x: auto;
+  }
+  .visualData{
+    display: flex;
+    height: 260px;
+}
+  
+#categoricalData{
+  margin: 10px;
+}
+.dataText{
+    position: static;
+    top: 420px;
+    left: 0%;
     margin-top: -50px;
-    margin-left: -50px;
     text-align: center;
     font-family: 'Poppins', sans-serif;
-    font-size: 36px;
+    background-color: #79bfbc;
     color: white;
-}
-.dataHeadeing{
-    font-size: 26px;
-    color: white;
-}
-.homeLoginButton{
-    margin-top: 5%;
-}
-.uploadButton:hover{ 
-    border: 1px solid #38686A;
-background: #38686A;
-transition: 1s;
-color: #fff;
-}
-.backgroundImage > img{
-    width: 100%;
-    height: 571px;
-    opacity: 0.6;
-    background-size: cover;
-    position: fixed;
-    left: 0px;
-    top: 50px;
-}
+    height: 40px;
+  }
+
+@media screen and  (max-width: 780px) {
+    .visualData{
+        display: block;
+        height: 470px;
+    }
+    .catData{
+        color: #000;
+        overflow-y:auto;
+        overflow-x: auto;
+      }
+      #categoricalData {
+        margin: 0px;
+      }
+      }

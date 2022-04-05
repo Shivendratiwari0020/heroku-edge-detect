@@ -1,6 +1,7 @@
 .segmentRule{
     display: flex;
     justify-content: space-evenly;
+    width: 70%;
 }
 .resultLabel{
     width: 100%;
@@ -12,4 +13,11 @@
     margin-top: 40px;
     margin-left: 149px;
 
+}
+.segmentRules{
+   
+    width: 30%;
+}
+#segment{
+    display: flex;
 }

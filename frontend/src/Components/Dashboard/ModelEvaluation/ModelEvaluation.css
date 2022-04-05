@@ -140,12 +140,13 @@ height: 20px;
     width: 450px;
     height: auto;
     margin-top: 0px;
+    overflow-y: auto;
   }
   .dataOutput3{
    padding: 8px;
   }
   .dataOutput3>img{
-    width: 350px;
+    width: 450px;
   }
   .dataValue{
     display: flex;
@@ -156,9 +157,9 @@ height: 20px;
   }
   .rocImage{
     height: 400px;
-    width: 400px;
+    width: 450px;
   }
   .conImage{
     height: 400px;
-    width: 400px;
+    width: 450px;
   }
