@@ -25,7 +25,7 @@ urlpatterns = [
     path('api/upload', views.upload_file),
     path('api/modeling', views.upload_file_get),
     path('api/startmodeling', views.start_modeling),
-    path('api/modelingevaluation', views.model_evaluation),
+    path('api/modelevaluation', views.model_evaluation),
     path('api/model_res', views.model_res),
     path('api/image',views.image_eva),
     path('api/ima',views.imagepath),
