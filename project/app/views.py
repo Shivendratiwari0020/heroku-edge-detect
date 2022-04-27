@@ -1817,7 +1817,7 @@ def model_evaluation(request):
         # confimage = conf_path + temp_path
         confimage = os.path.join(conf_path, con)
         print(confimage, "confusion path")
-        ppp = "http:\\\localhost:8000"
+        ppp = "https:\\\edge-detect-v2.herokuapp.com"
         rc = os.path.join(ppp, imagepath)
         co = os.path.join(ppp, confimage)
 
@@ -1956,7 +1956,7 @@ def finalimagepath(request):
         path = "static"
         import os
         filepath = os.path.join(path, "seg")
-        shutil.rmtree(filepath)
+#        shutil.rmtree(filepath)
         print("000000000000")
         print(filepath)
         print("0000000000000")
@@ -2276,7 +2276,7 @@ def finalimagepath(request):
         name="_confusion.png"
         finalimagepath=os.path.join(IMAGES_PATH,name)
         print(finalimagepath)
-        ppp = "http:\\\localhost:8000"
+        ppp = "https:\\\edge-detect-v2.herokuapp.com"
         rc = os.path.join(ppp, finalimagepath)
         print(rc)
         rm=str(rc.replace('\\', '/'))
