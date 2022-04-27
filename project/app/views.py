@@ -493,7 +493,7 @@ def start_modeling(request):
         path = "static"
         import shutil
         import os
-        filepath = os.path.join(path, "xtest")
+        filepath = os.path.join(path, "edge")
         shutil.rmtree(filepath)
         print("000000000000")
         print(filepath)
