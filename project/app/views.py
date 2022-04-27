@@ -3,6 +3,7 @@ import copy
 import io
 import operator
 from pyexpat import model
+from time import sleep
 
 import joblib
 from django.conf.urls import static
@@ -259,7 +260,7 @@ def upload_file_get(request):
         res = {
             "status": "successs",
             "message": "details get is successsss",
-            "data": res, "summary": rem, "NumericalDataSummary": jjj, "CategoricalDataSummary": pp,"missingData":kkk
+            "data": res, "summary": rem, "NumericalDataSummary": jjj, "CategoricalDataSummary": kkk,"missingData":pp
         }
         return JsonResponse(res)
     except Exception as e:
@@ -492,7 +493,7 @@ def start_modeling(request):
         path = "static"
         import shutil
         import os
-        filepath = os.path.join(path, "xtest")
+        filepath = os.path.join(path, "xtest&ytest")
         shutil.rmtree(filepath)
         print("000000000000")
         print(filepath)
@@ -934,6 +935,7 @@ def start_modeling(request):
         )
         start_modeling_create.save()
         print("after")
+        print("after")
 
         res = {
             "status": "successs",
@@ -1222,14 +1224,21 @@ def mod_filter(conditions, df):
 
 
 def filter_data(new_dict, X_test):
+    print("filterfilter")
+    print(new_dict)
+    print(X_test)
     empty_df = pd.DataFrame()
     if new_dict['condition'] == 'AND':
         empty_df = copy.deepcopy(X_test)
         for key in new_dict.keys():
+
             if key != 'condition':
+                print(new_dict[key][1])
                 if new_dict[key][1] == '=':
                     empty_df = empty_df[empty_df[key] == new_dict[key][0]]
                 if new_dict[key][1] == '<=':
+                    print("fixing")
+                    print(new_dict[key][0])
                     empty_df = empty_df[empty_df[key] <= new_dict[key][0]]
                 if new_dict[key][1] == '>=':
                     empty_df = empty_df[empty_df[key] >= new_dict[key][0]]
@@ -1251,6 +1260,8 @@ def filter_data(new_dict, X_test):
                     empty_df = pd.concat([empty_df, X_test[X_test[key] < new_dict[key][0]]], axis=0)
                 if new_dict[key][1] == '>':
                     empty_df = pd.concat([empty_df, X_test[X_test[key] > new_dict[key][0]]], axis=0)
+    print("=====================")
+    print(empty_df)
 
     return empty_df
 
@@ -1721,6 +1732,8 @@ def model_evaluation(request):
             X_filter = filter_data(temp_dict, X_test)
         else:
             X_filter = X_test
+            print("elseelse")
+        print(X_filter)
         print(X_filter.shape)
         print("X_filter", X_filter, "====","avinash")
         y_filter = y_test[y_test.index.isin(X_filter.index)]
@@ -1745,41 +1758,64 @@ def model_evaluation(request):
         # conf_path = os.path.join(PROJECT_ROOT_DIR, "images", "conf")
         # print(conf_path)
         print(IMAGES_PATH)
+        # os.rmdir(IMAGES_PATH)
+        # sleep(15)
+        # shutil.rmtree(IMAGES_PATH)
         os.makedirs(IMAGES_PATH, exist_ok=True)
+
         # os.makedirs(conf_path, exist_ok=True)
         # s = os.path.join(IMAGES_PATH, "\\")
         # s=IMAGES_PATH+s
         # print(s)
-
+        plt.clf()
+        current_date = datetime.datetime.now()
+        Id_val = current_date.strftime("%Y%m%d%H%M%S")
+        roc=str(Id_val)+"."+"png"
+        print("=================")
+        print("========")
+        print("===")
+        print(roc)
         for key, value in filtered_predictions_prob.items():
             print("++++++")
             skplt.metrics.plot_roc_curve(y_filter.values, value)
             print("+++++++++++++++")
-            plt.savefig(IMAGES_PATH + 'roc.png')
+            plt.savefig(IMAGES_PATH + roc)
+            # plt.show()
+            plt.close()
+            # plt.show()
 
         temp_fig_path = 'roc.png'
-        imagepath = os.path.join(IMAGES_PATH, temp_fig_path)
+        imagepath = os.path.join(IMAGES_PATH, roc)
         # imagepath = IMAGES_PATH + temp_fig_path
         print(imagepath, "temp_fig_path")
         print("dodododododododo")
         path = "static"
         PROJECT_ROOT_DIR = path
-        conf_path = os.path.join(PROJECT_ROOT_DIR, "images", "con", "")
+        conf_path = os.path.join(PROJECT_ROOT_DIR, "images","sai","")
         print("000000000000")
         print(conf_path)
         print("0000000000000")
         os.makedirs(conf_path, exist_ok=True)
         import seaborn as sns
         from sklearn.metrics import confusion_matrix
+        plt.clf()
+        print("sai")
+        current_date = datetime.datetime.now()
+        Id_val = current_date.strftime("%Y%m%d%H%M%S")
+        con = str(Id_val) + "." + "png"
         for key, value in filtered_predictions.items():
             print("++++++")
 
             cm = confusion_matrix(y_filter.values, value)
             f = sns.heatmap(cm, annot=True, fmt='d')
-            plt.savefig(conf_path + 'confusion.png')
+            plt.savefig(conf_path + con)
+        # plt.show()
+        # sleep(2)
+            plt.close()
+            # plt.show()
         temp_path = 'confusion.png'
         # confimage = conf_path + temp_path
-        confimage = os.path.join(conf_path, temp_path)
+        confimage = os.path.join(conf_path, con)
         print(confimage, "confusion path")
         ppp = "http:\\\localhost:8000"
         rc = os.path.join(ppp, imagepath)
@@ -2137,6 +2173,7 @@ def finalimagepath(request):
             return X_test
 
         def ApplyingRules(temp_rules_dict, modeled_df, df_int_, df_cat_):
+            print(temp_rules_dict)
             print("121212121212121212")
 
             for i in range(len(temp_rules_dict)):
@@ -2145,6 +2182,7 @@ def finalimagepath(request):
                 dict_x = {1: temp}
                 temp_dict = dict()
                 for value in dict_x.values():
+                    print("value")
                     if value['selectVariable'] in df_int_.columns:
                         temp_dict[value['selectVariable']] = [float(value['evaluationValue'])]
                         temp_dict[value['selectVariable']].append(value['selectOperator'])
@@ -2154,10 +2192,15 @@ def finalimagepath(request):
                         temp_dict[value['selectVariable'] + '_' + str(value['evaluationValue'])].append(
                             value['selectOperator'])
                         temp_dict['condition'] = value['selectOperation']
+                print("================================================================////////")
+                print(temp_dict)
                 X_filter = filter_data(temp_dict, modeled_df)
                 modeled_df = pd.concat([modeled_df, X_filter]).drop_duplicates(keep=False)
                 X_filter['y_pred'] = temp_rules_dict['Rules'][i]['selectedVariable']
                 modeled_df = modeled_df.append(X_filter)
+                # print(modeled_df)
+
+                print("value1")
 
             return modeled_df
 
@@ -2182,20 +2225,33 @@ def finalimagepath(request):
         # In[221]:
 
         y_pred = list(final_df['y_pred'])
+        # y_pred = list(final_df['y_pred'].astype(int))
         y_actual = list(final_df['y_actual'])
+        # y_actual = list(final_df['y_actual'].astype(int))
+        # y_pred=int(y_pred)
+        # y_actual=int(y_actual)
+        print(y_pred)
+        print("=================")
+        print(y_actual)
 
         # In[222]:
 
         from sklearn.metrics import confusion_matrix
 
         # Generate the confusion matrix
+        print(y_actual)
+        print("============")
+        print(y_pred)
         cf_matrix = confusion_matrix(y_actual, y_pred)
+        print("till here")
 
         # In[223]:
 
         import seaborn as sns
+        plt.clf()
 
-        ax = sns.heatmap(cf_matrix, annot=True, cmap='Blues')
+        ax = sns.heatmap(cf_matrix, annot=True, cmap='Blues',fmt='d')
+        # f = sns.heatmap(cm, annot=True, fmt='d')
 
         ax.set_title('Seaborn Confusion Matrix with labels\n\n');
         ax.set_xlabel('\nPredicted Values')
@@ -2216,6 +2272,7 @@ def finalimagepath(request):
         print(IMAGES_PATH)
         os.makedirs(IMAGES_PATH, exist_ok=True)
         plt.savefig(IMAGES_PATH +'_confusion.png')
+        plt.close()
         name="_confusion.png"
         finalimagepath=os.path.join(IMAGES_PATH,name)
         print(finalimagepath)
@@ -2275,6 +2332,7 @@ def imagepath(request):
 @api_view(['GET', 'POST', ])
 def image_eva(request):
     try:
+        sleep(10)
         operations_res = json.loads(serializers.serialize("json", models.Image.objects.all()))
         print(operations_res)
         im = operations_res[0]
