@@ -1961,7 +1961,7 @@ def finalimagepath(request):
         print(filepath)
         print("0000000000000")
         os.makedirs(filepath, exist_ok=True)
-        file = "Segment_Rules.json"
+        file = "segment_rules.json"
         file_path = os.path.join(filepath, file)
 
         with open(file_path, 'w') as fs:
