@@ -494,7 +494,7 @@ def start_modeling(request):
         import shutil
         import os
         filepath = os.path.join(path, "edge")
-        shutil.rmtree(filepath)
+#        shutil.rmtree(filepath)
         print("000000000000")
         print(filepath)
         print("0000000000000")
