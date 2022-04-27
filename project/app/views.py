@@ -730,7 +730,7 @@ def start_modeling(request):
         PROJECT_ROOT_DIR = path
         IMAGES_PATH = os.path.join(PROJECT_ROOT_DIR, "models_temp", "")
         import shutil
-        shutil.rmtree(IMAGES_PATH)
+#        shutil.rmtree(IMAGES_PATH)
         os.makedirs(IMAGES_PATH, exist_ok=True)
         li_path = []
         for key in modelss.keys():
