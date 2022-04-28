@@ -2564,7 +2564,7 @@ def download(request):
             filename=file_name.replace(" ", "_")
         )
         print(path_to_zip)
-        down={"dowmload_path":"http: // localhost: 8000 / static /Download.zip" }
+        down={"dowmload_path":"https://edge-detect-v2.herokuapp.com/ static /Download.zip" }
         return response
     except Exception as e:
         print("error:", e)
